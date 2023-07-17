@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/DesmondTo/minichallenge/internal/database/flight"
@@ -11,7 +12,7 @@ import (
 
 const dateFormat = "2006-01-02"
 
-type FlightDetail map[string]interface{} 
+type FlightDetail map[string]interface{}
 
 func getCheapestPrice(collection *mongo.Collection, filters bson.D) (int32, error) {
 	sortOpts := bson.D{{Key: "price", Value: 1}}
@@ -33,13 +34,14 @@ func getCheapestPrice(collection *mongo.Collection, filters bson.D) (int32, erro
 func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDate time.Time, destination string) ([]FlightDetail, error) {
 	sortOpts := bson.D{{Key: "price", Value: 1}}
 	projOpts := bson.D{
+		{Key: "destcity", Value: 1},
 		{Key: "airlinename", Value: 1},
 		{Key: "price", Value: 1},
 	}
 
 	filters := bson.D{
-		{Key: "srccity", Value: "Singapore"},
-		{Key: "destcity", Value: destination},
+		{Key: "srccity", Value: primitive.Regex{Pattern: "Singapore", Options: "i"}},
+		{Key: "destcity", Value: primitive.Regex{Pattern: destination, Options: "i"}},
 		{Key: "date", Value: departureDate},
 	}
 	price, err := getCheapestPrice(collection, filters)
@@ -53,8 +55,8 @@ func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDa
 	}
 
 	filters = bson.D{
-		{Key: "srccity", Value: destination},
-		{Key: "destcity", Value: "Singapore"},
+		{Key: "srccity", Value: primitive.Regex{Pattern: destination, Options: "i"}},
+		{Key: "destcity", Value: primitive.Regex{Pattern: "Singapore", Options: "i"}},
 		{Key: "date", Value: returnDate},
 	}
 	price, err = getCheapestPrice(collection, filters)
@@ -73,7 +75,7 @@ func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDa
 	for _, departFlight := range departFlights {
 		for _, returnFlight := range returnFlights {
 			flightDetail := FlightDetail{
-				"City":             destination,
+				"City":              departFlight.DestCity,
 				"Departure Date":    dd,
 				"Departure Airline": departFlight.AirlineName,
 				"Departure Price":   departFlight.Price,
