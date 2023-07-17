@@ -8,6 +8,7 @@ import (
 
 	"github.com/DesmondTo/minichallenge/internal/database"
 	"github.com/DesmondTo/minichallenge/internal/transport/handler/flight"
+	"github.com/DesmondTo/minichallenge/internal/transport/handler/hotel"
 )
 
 func Run() {
@@ -16,7 +17,9 @@ func Run() {
 
 	// Inject the database connection client into the handlers
 	flightHandler := flight.NewHandler(client)
+	hotelHandler := hotel.NewHandler(client)
 	router.GET("/flight", flightHandler.GetCheapest)
+	router.GET("/hotel", hotelHandler.GetCheapest)
 	err := router.Run(":8080")
 
 	if err != nil {

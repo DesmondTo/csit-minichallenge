@@ -27,3 +27,11 @@ type Flight struct {
 	SrcCountry      string             `bson:"srccountry"`
 	Stop            int32              `bson:"stop"`
 }
+
+type Hotel struct {
+	ID    primitive.ObjectID `bson:"_id"`
+	City  string             `bson:"city"`
+	Date  time.Time          `bson:"date"`
+	Name  string             `bson:"hotelName"`
+	Price int32              `bson:"price"`
+}
