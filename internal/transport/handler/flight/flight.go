@@ -60,6 +60,10 @@ func checkAndParseQueryParams(departureDate, returnDate, destination string) (ti
 		return time.Time{}, time.Time{}, "", errors.New("Missing destination")
 	}
 
+  if departureTime.After(returnTime) {
+    return time.Time{}, time.Time{}, "", errors.New("Departure date must be before or equal to return date")
+  }
+
 	return departureTime, returnTime, destination, nil
 }
 

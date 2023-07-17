@@ -60,6 +60,10 @@ func checkAndParseQueryParams(checkInDate, checkOutDate, destination string) (ti
 		return time.Time{}, time.Time{}, "", errors.New("Missing destination")
 	}
 
+  if checkInTime.After(checkOutTime) {
+    return time.Time{}, time.Time{}, "", errors.New("Check-in date must be before or equal to check-out date")
+  }
+
 	return checkInTime, checkOutTime, destination, nil
 }
 
