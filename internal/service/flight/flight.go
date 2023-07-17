@@ -1,6 +1,7 @@
 package flight
 
 import (
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -38,10 +39,12 @@ func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDa
 		{Key: "airlinename", Value: 1},
 		{Key: "price", Value: 1},
 	}
+	pattern := fmt.Sprintf("^%s$", destination)
 
+	// Search for cheapest flight from Singapore to destination
 	filters := bson.D{
-		{Key: "srccity", Value: primitive.Regex{Pattern: "Singapore", Options: "i"}},
-		{Key: "destcity", Value: primitive.Regex{Pattern: destination, Options: "i"}},
+		{Key: "srccity", Value: primitive.Regex{Pattern: "^Singapore$", Options: "i"}},
+		{Key: "destcity", Value: primitive.Regex{Pattern: pattern, Options: "i"}},
 		{Key: "date", Value: departureDate},
 	}
 	price, err := getCheapestPrice(collection, filters)
@@ -54,9 +57,10 @@ func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDa
 		return nil, err
 	}
 
+	// Search for cheapest flight from destination to Singapore
 	filters = bson.D{
-		{Key: "srccity", Value: primitive.Regex{Pattern: destination, Options: "i"}},
-		{Key: "destcity", Value: primitive.Regex{Pattern: "Singapore", Options: "i"}},
+		{Key: "srccity", Value: primitive.Regex{Pattern: pattern, Options: "i"}},
+		{Key: "destcity", Value: primitive.Regex{Pattern: "^Singapore$", Options: "i"}},
 		{Key: "date", Value: returnDate},
 	}
 	price, err = getCheapestPrice(collection, filters)

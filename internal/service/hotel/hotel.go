@@ -1,6 +1,7 @@
 package hotel
 
 import (
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -54,12 +55,13 @@ func GetCheapest(collection *mongo.Collection, checkInDate time.Time, checkOutDa
 		{Key: "price", Value: 1},
 		{Key: "date", Value: 1},
 	}
+	pattern := fmt.Sprintf("^%s$", destination)
 
+  // Search for cheapest hotel in destination
 	filters := bson.D{
-		{Key: "city", Value: primitive.Regex{Pattern: destination, Options: "i"}},
+		{Key: "city", Value: primitive.Regex{Pattern: pattern, Options: "i"}},
 		{Key: "date", Value: bson.D{{Key: "$gte", Value: checkInDate}, {Key: "$lte", Value: checkOutDate}}},
 	}
-
 	hotels, err := hotel.Get(collection, filters, sortOpts, projOpts)
 	if err != nil {
 		return nil, err
