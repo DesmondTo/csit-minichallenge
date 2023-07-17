@@ -69,7 +69,7 @@ func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDa
 		return nil, err
 	}
 
-	var flightDetails []FlightDetail
+	var flightDetails []FlightDetail = make([]FlightDetail, 0)
 	dd := departureDate.Format(dateFormat)
 	rd := returnDate.Format(dateFormat)
 	for _, departFlight := range departFlights {

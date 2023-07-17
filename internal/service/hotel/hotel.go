@@ -1,7 +1,6 @@
 package hotel
 
 import (
-	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -31,7 +30,7 @@ func sumHotelPrice(hotels []model.Hotel) HotelPrice {
 	return hotelPrice
 }
 
-func findCheapesPrice(hotelPrices HotelPrice) (int32, error) {
+func findCheapesPrice(hotelPrices HotelPrice) int32 {
 	var price int32 = -1
 	for _, hotelPrice := range hotelPrices {
 		if price == -1 {
@@ -41,11 +40,7 @@ func findCheapesPrice(hotelPrices HotelPrice) (int32, error) {
 		}
 	}
 
-	if price == -1 {
-		return price, errors.New("Failed to find the cheapest price")
-	}
-
-	return price, nil
+	return price
 }
 
 func GetCheapest(collection *mongo.Collection, checkInDate time.Time, checkOutDate time.Time, destination string) ([]HotelDetail, error) {
@@ -71,12 +66,9 @@ func GetCheapest(collection *mongo.Collection, checkInDate time.Time, checkOutDa
 	}
 
 	hotelPrices := sumHotelPrice(hotels)
-	cheapestPrice, err := findCheapesPrice(hotelPrices)
-	if err != nil {
-		return nil, err
-	}
+	cheapestPrice := findCheapesPrice(hotelPrices)
 
-	var hotelDetails []HotelDetail
+	var hotelDetails []HotelDetail = make([]HotelDetail, 0)
 	for hotelKey, hotelPrice := range hotelPrices {
 		if hotelPrice == cheapestPrice {
 			hotelDetail := HotelDetail{
