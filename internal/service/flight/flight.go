@@ -11,15 +11,7 @@ import (
 
 const dateFormat = "2006-01-02"
 
-type Flight struct {
-	City             string
-	DepartureDate    string
-	DepartureAirline string
-	DeparturePrice   int32
-	ReturnDate       string
-	ReturnAirline    string
-	ReturnPrice      int32
-}
+type FlightDetail map[string]interface{} 
 
 func getCheapestPrice(collection *mongo.Collection, filters bson.D) (int32, error) {
 	sortOpts := bson.D{{Key: "price", Value: 1}}
@@ -38,7 +30,7 @@ func getCheapestPrice(collection *mongo.Collection, filters bson.D) (int32, erro
 	return flights[0].Price, nil
 }
 
-func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDate time.Time, destination string) ([]Flight, error) {
+func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDate time.Time, destination string) ([]FlightDetail, error) {
 	sortOpts := bson.D{{Key: "price", Value: 1}}
 	projOpts := bson.D{
 		{Key: "airlinename", Value: 1},
@@ -75,23 +67,23 @@ func GetCheapest(collection *mongo.Collection, departureDate time.Time, returnDa
 		return nil, err
 	}
 
-	var flights []Flight
+	var flightDetails []FlightDetail
 	dd := departureDate.Format(dateFormat)
 	rd := returnDate.Format(dateFormat)
 	for _, departFlight := range departFlights {
 		for _, returnFlight := range returnFlights {
-			flight := Flight{
-				City:             destination,
-				DepartureDate:    dd,
-				DepartureAirline: departFlight.AirlineName,
-				DeparturePrice:   departFlight.Price,
-				ReturnDate:       rd,
-				ReturnAirline:    returnFlight.AirlineName,
-				ReturnPrice:      returnFlight.Price,
+			flightDetail := FlightDetail{
+				"City":             destination,
+				"Departure Date":    dd,
+				"Departure Airline": departFlight.AirlineName,
+				"Departure Price":   departFlight.Price,
+				"Return Date":       rd,
+				"Return Airline":    returnFlight.AirlineName,
+				"Return Price":      returnFlight.Price,
 			}
-			flights = append(flights, flight)
+			flightDetails = append(flightDetails, flightDetail)
 		}
 	}
 
-	return flights, nil
+	return flightDetails, nil
 }
